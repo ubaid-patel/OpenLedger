@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.input {
+  @apply w-full border p-2 rounded mb-3;
+}
+
+@keyframes navin {
+  from {
+    transform: translate(-50%, 40px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Prevent accidental selection on tap */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Default: disable selection */
+body {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Allow selection when user long presses text */
+p,
+span,
+div,
+td,
+th {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Always allow inputs */
+input,
+textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.input {
+  @apply w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200;
+}
+
+.label {
+  @apply text-sm text-gray-600 mb-1 block;
+}
+
+.upload {
+  @apply flex items-center justify-center border-2 border-dashed rounded-lg h-32 cursor-pointer hover:bg-gray-50 transition;
+}
