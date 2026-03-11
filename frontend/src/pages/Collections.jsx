@@ -118,8 +118,6 @@ export default function Collections(){
 
     let url = Array.isArray(r) ? r[0] : r
 
-    /* remove query params if present */
-
     return url.split("?")[0]
 
   }
@@ -262,6 +260,12 @@ export default function Collections(){
                   <div className="text-sm text-gray-500">
                     {c.purpose || "-"}
                   </div>
+
+                  {c.collectedBy && (
+                    <div className="text-xs text-gray-400">
+                      Collected By: {c.collectedBy}
+                    </div>
+                  )}
 
                 </div>
 
