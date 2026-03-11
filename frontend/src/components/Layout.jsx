@@ -7,11 +7,11 @@ export default function Layout({ children }) {
   const [open, setOpen] = useState(false)
 
   const nav = [
-    { name: "Dashboard", path: "/" },
-    { name: "Expenses", path: "/expenses" },
-    { name: "Collections", path: "/collections" },
-    { name: "Admin", path: "/admin" },
-     { name: "Forms", path: "/forms" }
+    { name: "Dashboard", path: "/", icon: "🏠" },
+    { name: "Expenses", path: "/expenses", icon: "💸" },
+    { name: "Collections", path: "/collections", icon: "📥" },
+    { name: "Admin", path: "/admin", icon: "🛠" },
+    { name: "Forms", path: "/forms", icon: "📝" }
   ]
 
   return (
@@ -73,11 +73,11 @@ export default function Layout({ children }) {
         </header>
 
 
-        {/* Mobile Drawer Menu */}
+        {/* Mobile Drawer */}
 
         {open && (
 
-          <div className="md:hidden bg-white shadow-lg border-b animate-[fadein_.25s_ease]">
+          <div className="md:hidden bg-white shadow-lg border-b">
 
             {nav.map((n) => (
 
@@ -103,14 +103,14 @@ export default function Layout({ children }) {
 
         {/* Content */}
 
-        <main className="flex-1 p-4 md:p-8">
+        <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8">
           {children}
         </main>
 
 
-        {/* Footer Credit */}
+        {/* Footer */}
 
-        <footer className="flex justify-center my-10 md:my-12 pb-16 md:pb-6">
+        <footer className="flex justify-center my-10 md:my-12">
 
           <a
             href="https://github.com/ubaid-patel"
@@ -138,11 +138,13 @@ export default function Layout({ children }) {
         </footer>
 
 
-        {/* Floating Bottom Nav */}
+        {/* Native Style Bottom Navigation */}
 
-        <nav className="md:hidden fixed bottom-[env(safe-area-inset-bottom)] left-1/2 -translate-x-1/2 mb-3 z-50">
+        {/* Native Style Bottom Navigation */}
 
-          <div className="bg-white/80 backdrop-blur-lg shadow-xl border border-gray-200 rounded-full px-5 py-2 flex gap-6 transition-all duration-300 ease-out animate-[navin_.4s_ease]">
+        <nav className="md:hidden fixed bottom-0 left-0 w-full z-50">
+
+          <div className="bg-white/90 backdrop-blur-xl border-t shadow-lg flex justify-between items-center px-1 pb-[env(safe-area-inset-bottom)]">
 
             {nav.map((n) => {
 
@@ -153,18 +155,30 @@ export default function Layout({ children }) {
                 <Link
                   key={n.path}
                   to={n.path}
-                  className={`relative text-sm px-2 py-1 transition-all duration-200 active:scale-90
-                  ${active
-                      ? "text-blue-600 font-semibold"
-                      : "text-gray-500 hover:text-gray-700"
-                    }`}
+                  className={`relative flex flex-col items-center justify-center flex-1 py-2 transition-all duration-200
+          ${active ? "text-blue-600" : "text-gray-500"}
+          `}
                 >
 
-                  {n.name}
+                  {/* Active indicator */}
 
-                  {active && (
-                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full animate-pulse" />
-                  )}
+                  <span
+                    className={`absolute top-0 h-[3px] w-6 rounded-full bg-blue-600 transition-all duration-300
+            ${active ? "opacity-100 scale-100" : "opacity-0 scale-50"}
+            `}
+                  />
+
+                  {/* Icon */}
+
+                  <span className={`text-xl transition-transform ${active ? "scale-110" : ""}`}>
+                    {n.icon}
+                  </span>
+
+                  {/* Small Label */}
+
+                  <span className="text-[10px] leading-none mt-1">
+                    {n.name}
+                  </span>
 
                 </Link>
 
@@ -175,7 +189,6 @@ export default function Layout({ children }) {
           </div>
 
         </nav>
-
       </div>
 
     </div>
