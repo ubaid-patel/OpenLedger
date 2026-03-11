@@ -23,17 +23,19 @@ app.include_router(expenses.router, prefix="/api/expenses")
 app.include_router(collections.router, prefix="/api/collections")
 app.include_router(upload.router, prefix="/api/upload")
 
-# Get absolute path
+
+# React build directory
 BASE_DIR = Path(__file__).resolve().parent
 BUILD_DIR = BASE_DIR / "public"
 
 assets_dir = BUILD_DIR / "assets"
 
-# Serve assets if available
+# Serve static assets
 if assets_dir.exists():
     app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
 
 
+# Root route
 @app.get("/")
 def serve_root():
     index_file = BUILD_DIR / "index.html"
@@ -42,8 +44,23 @@ def serve_root():
     return {"status": "API running"}
 
 
+# React router fallback
 @app.get("/{full_path:path}")
 def serve_react_app(full_path: str):
+
+    # Paths that should NOT be handled by React
+    excluded_prefixes = (
+        "api",
+        "docs",
+        "redoc",
+        "openapi.json",
+        "assets",
+        "favicon.ico",
+    )
+
+    if full_path.startswith(excluded_prefixes):
+        return {"detail": "Not Found"}
+
     index_file = BUILD_DIR / "index.html"
 
     if index_file.exists():
