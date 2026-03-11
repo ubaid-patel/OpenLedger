@@ -8,7 +8,8 @@ export default function ViewForm(){
 
   const [form,setForm] = useState(null)
   const [answers,setAnswers] = useState({})
-  const [receipt,setReceipt] = useState("")
+
+  const [receipts,setReceipts] = useState([])
   const [preview,setPreview] = useState(null)
   const [uploading,setUploading] = useState(false)
 
@@ -34,6 +35,8 @@ export default function ViewForm(){
 
   }
 
+  /* ---------------- ANSWERS ---------------- */
+
   const handleChange=(name,value)=>{
 
     setAnswers(prev=>({
@@ -43,7 +46,7 @@ export default function ViewForm(){
 
   }
 
-  /* -------- Upload Receipt -------- */
+  /* ---------------- UPLOAD RECEIPT ---------------- */
 
   const upload = async(file)=>{
 
@@ -65,7 +68,9 @@ export default function ViewForm(){
         }
       })
 
-      setReceipt(res.data.url)
+      const url = res.data.url
+
+      setReceipts([url])
 
     }catch(err){
 
@@ -78,7 +83,7 @@ export default function ViewForm(){
 
   }
 
-  /* -------- Submit -------- */
+  /* ---------------- SUBMIT ---------------- */
 
   const submit = async()=>{
 
@@ -86,7 +91,7 @@ export default function ViewForm(){
 
       const payload={
         ...answers,
-        receipt
+        receipts
       }
 
       await API.post(`/forms/${id}/submit`,payload)
@@ -148,6 +153,7 @@ export default function ViewForm(){
 
       </div>
 
+
       {/* PAYMENT */}
 
       {(form.qr_image || form.upi_id) && (
@@ -175,25 +181,67 @@ export default function ViewForm(){
 
       )}
 
+
       {/* FORM */}
 
       <div className="bg-white shadow rounded-xl p-6 space-y-4">
 
         {form.fields?.map((field)=>{
 
-          return(
+          /* LABEL BLOCK */
 
+          if(field.type==="label"){
+            return(
+              <p key={field.name} className="text-gray-700 font-medium">
+                {field.label}
+              </p>
+            )
+          }
+
+          /* TEXTAREA */
+
+          if(field.type==="textarea"){
+            return(
+              <textarea
+                key={field.name}
+                placeholder={field.label}
+                className="w-full px-4 py-3 border rounded-lg"
+                required={field.required}
+                onChange={(e)=>handleChange(field.name,e.target.value)}
+              />
+            )
+          }
+
+          /* NUMBER */
+
+          if(field.type==="number"){
+            return(
+              <input
+                key={field.name}
+                type="number"
+                placeholder={field.label}
+                className="w-full h-12 px-4 border rounded-lg"
+                required={field.required}
+                onChange={(e)=>handleChange(field.name,Number(e.target.value))}
+              />
+            )
+          }
+
+          /* DEFAULT TEXT */
+
+          return(
             <input
               key={field.name}
-              type={field.type}
+              type="text"
               placeholder={field.label}
               className="w-full h-12 px-4 border rounded-lg"
+              required={field.required}
               onChange={(e)=>handleChange(field.name,e.target.value)}
             />
-
           )
 
         })}
+
 
         {/* RECEIPT */}
 
@@ -243,6 +291,7 @@ export default function ViewForm(){
           )}
 
         </div>
+
 
         {/* SUBMIT */}
 
