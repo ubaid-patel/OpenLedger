@@ -6,11 +6,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 MONGO_URI = os.getenv("MONGO_URI")
+DB_NAME = os.getenv("DB_NAME", "FinanceDB")  # fallback if not provided
 
-# We add the tlsCAFile parameter right here
 client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
 
-db = client["FinanceDB"]
+db = client[DB_NAME]
 
 forms_collection = db["forms"]
 expenses_collection = db["expenses"]
