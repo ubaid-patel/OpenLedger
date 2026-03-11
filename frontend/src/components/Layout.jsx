@@ -10,7 +10,8 @@ export default function Layout({ children }) {
     { name: "Dashboard", path: "/" },
     { name: "Expenses", path: "/expenses" },
     { name: "Collections", path: "/collections" },
-    { name: "Admin", path: "/admin" }
+    { name: "Admin", path: "/admin" },
+     { name: "Forms", path: "/forms" }
   ]
 
   return (

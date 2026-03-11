@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import API from "../api/api"
 
 export default function Dashboard(){
+
+  const navigate = useNavigate()
 
   const [expenses,setExpenses] = useState([])
   const [collections,setCollections] = useState([])
@@ -144,6 +147,19 @@ export default function Dashboard(){
   return(
 
     <div className="max-w-6xl mx-auto animate-[fadein_.4s_ease]">
+
+      {/* FORMS BUTTON */}
+
+      <div className="flex justify-end mb-4">
+
+        <button
+          onClick={()=>navigate("/forms")}
+          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg shadow active:scale-95 transition"
+        >
+          Forms
+        </button>
+
+      </div>
 
       {/* SUMMARY CARDS */}
 

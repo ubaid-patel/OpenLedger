@@ -18,6 +18,7 @@ import EditForm from "./pages/EditForm"
 import ViewForm from "./pages/ViewForm"
 import InstallApp from "./components/InstallApp"
 import PWAInstall from "./pages/PWAInstall"
+import PublicFormList from "./pages/PublicFormList"
 
 function App() {
 
@@ -42,6 +43,7 @@ function App() {
           <Route path="/collections/new" element={<CreateForm />} />
 
           <Route path="/admin" element={<Admin />} />
+          <Route path="/forms" element={<PublicFormList />} />
 
 
           {/* NEW ADMIN FORM ROUTES */}
