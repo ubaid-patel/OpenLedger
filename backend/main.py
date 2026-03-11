@@ -11,7 +11,7 @@ app = FastAPI()
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # change to frontend domain in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -23,22 +23,25 @@ app.include_router(expenses.router, prefix="/api/expenses")
 app.include_router(collections.router, prefix="/api/collections")
 app.include_router(upload.router, prefix="/api/upload")
 
-# React build directory
-BUILD_DIR = Path("public")
+# Get absolute path
+BASE_DIR = Path(__file__).resolve().parent
+BUILD_DIR = BASE_DIR / "public"
 
-# Serve static assets
 assets_dir = BUILD_DIR / "assets"
+
+# Serve assets if available
 if assets_dir.exists():
     app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
 
 
-# Root route
 @app.get("/")
 def serve_root():
-    return FileResponse(BUILD_DIR / "index.html")
+    index_file = BUILD_DIR / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
+    return {"status": "API running"}
 
 
-# Catch-all route for React Router (must be LAST)
 @app.get("/{full_path:path}")
 def serve_react_app(full_path: str):
     index_file = BUILD_DIR / "index.html"
