@@ -7,17 +7,26 @@ export default function PWAInstall() {
 
   useEffect(() => {
 
-    // don't show if user disabled earlier
-    const dismissed = localStorage.getItem("pwa-install-dismissed")
+    // hide if user disabled
+    if (localStorage.getItem("pwa-install-dismissed") === "true") return
 
-    if (dismissed === "true") return
+    // hide if already installed
+    const isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.navigator.standalone === true
+
+    if (isStandalone) return
 
     const handler = (e) => {
 
       e.preventDefault()
 
       setPrompt(e)
-      setVisible(true)
+
+      // slight delay feels more natural
+      setTimeout(() => {
+        setVisible(true)
+      }, 3000)
 
     }
 
@@ -71,71 +80,62 @@ export default function PWAInstall() {
         fixed bottom-24 left-1/2 -translate-x-1/2
         bg-white/95 backdrop-blur-xl
         border border-gray-200
-        shadow-lg
+        shadow-xl
         rounded-xl
         px-4 py-3
-        flex items-center gap-3
         z-50
-        max-w-[92%]
+        w-[92%]
+        max-w-sm
       "
     >
 
       {/* message */}
 
-      <span className="text-sm text-gray-700 whitespace-nowrap">
+      <p className="text-sm text-gray-700 text-center">
         Install this app for a better experience
-      </span>
+      </p>
 
 
-      {/* install button */}
+      {/* buttons */}
 
-      <button
-        onClick={install}
-        className="
-          bg-blue-600
-          hover:bg-blue-700
-          text-white
-          px-3 py-1
-          rounded-md
-          text-sm
-          font-medium
-          transition
-        "
-      >
-        Install
-      </button>
+      <div className="flex justify-center gap-2 mt-3 flex-wrap">
 
+        <button
+          onClick={install}
+          className="
+            bg-blue-600 hover:bg-blue-700
+            text-white text-sm
+            px-3 py-1.5
+            rounded-md
+            font-medium
+          "
+        >
+          Install
+        </button>
 
-      {/* close button */}
+        <button
+          onClick={close}
+          className="
+            text-gray-500 hover:text-gray-700
+            text-sm px-3 py-1.5
+            border rounded-md
+          "
+        >
+          Close
+        </button>
 
-      <button
-        onClick={close}
-        className="
-          text-gray-400
-          hover:text-gray-700
-          text-lg
-          leading-none
-          transition
-        "
-      >
-        ×
-      </button>
+        <button
+          onClick={dontAskAgain}
+          className="
+            text-xs text-gray-500
+            underline
+            px-2 py-1
+          "
+        >
+          Don't ask again
+        </button>
 
-
-      {/* don't ask again */}
-
-      <button
-        onClick={dontAskAgain}
-        className="
-          text-xs
-          text-gray-500
-          hover:text-gray-700
-          underline
-          ml-1
-        "
-      >
-        Don't ask again
-      </button>
+      </div>
 
     </div>
 
