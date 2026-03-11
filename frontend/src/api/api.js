@@ -2,8 +2,8 @@ import axios from "axios"
 
 const API = axios.create({
   baseURL: import.meta.env.PROD
-    ? "/api"
-    : "http://10.97.92.55:8000/api"
+    ? "https://open-ledger-api.vercel.app/api"
+    : "http://127.0.0.1:8001/api"
 })
 
 export default API
