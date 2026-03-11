@@ -2,17 +2,21 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import API from "../api/api"
 
-export default function CreateDynamicForm({onCreated}){
+export default function CreateDynamicForm({ onCreated }) {
 
   const [form,setForm] = useState({
     title:"",
     description:"",
     purpose:"",
-    fields:[]
+    fields:[],
+    receipts:[]
   })
 
   const update=(k,v)=>{
-    setForm(prev=>({...prev,[k]:v}))
+    setForm(prev=>({
+      ...prev,
+      [k]:v ?? ""
+    }))
   }
 
   /* ---------------- FIELD OPS ---------------- */
@@ -35,35 +39,51 @@ export default function CreateDynamicForm({onCreated}){
 
   const updateField=(i,key,value)=>{
 
-    const copy=[...form.fields]
-    copy[i][key]=value
+    setForm(prev=>{
 
-    setForm(prev=>({...prev,fields:copy}))
+      const copy=[...prev.fields]
+
+      copy[i]={
+        ...copy[i],
+        [key]:value
+      }
+
+      return {...prev,fields:copy}
+
+    })
 
   }
 
   const removeField=(i)=>{
 
-    const copy=[...form.fields]
-    copy.splice(i,1)
+    setForm(prev=>{
 
-    setForm(prev=>({...prev,fields:copy}))
+      const copy=[...prev.fields]
+      copy.splice(i,1)
+
+      return {...prev,fields:copy}
+
+    })
 
   }
 
   const move=(i,dir)=>{
 
-    const copy=[...form.fields]
+    setForm(prev=>{
 
-    const target=i+dir
+      const copy=[...prev.fields]
 
-    if(target<0 || target>=copy.length) return
+      const target=i+dir
 
-    const temp=copy[i]
-    copy[i]=copy[target]
-    copy[target]=temp
+      if(target<0 || target>=copy.length) return prev
 
-    setForm(prev=>({...prev,fields:copy}))
+      const temp=copy[i]
+      copy[i]=copy[target]
+      copy[target]=temp
+
+      return {...prev,fields:copy}
+
+    })
 
   }
 
@@ -71,21 +91,34 @@ export default function CreateDynamicForm({onCreated}){
 
   const create = async()=>{
 
-    if(!form.title){
+    if(!form.title.trim()){
       alert("Title required")
       return
     }
 
-    await API.post("/forms",form)
+    const payload={
+      title:form.title,
+      description:form.description || "",
+      purpose:form.purpose || "",
+      fields:form.fields || [],
+      receipts:form.receipts || []
+    }
+
+    await API.post("/forms",payload,{
+      headers:{
+        "Content-Type":"application/json"
+      }
+    })
 
     setForm({
       title:"",
       description:"",
       purpose:"",
-      fields:[]
+      fields:[],
+      receipts:[]
     })
 
-    onCreated()
+    onCreated && onCreated()
 
   }
 
@@ -134,15 +167,11 @@ export default function CreateDynamicForm({onCreated}){
             className="bg-white rounded-xl shadow p-4 space-y-3"
           >
 
-            {/* QUESTION */}
-
             <input
               className="border rounded px-2 py-1 w-full font-medium"
               value={f.label}
               onChange={e=>updateField(i,"label",e.target.value)}
             />
-
-            {/* PREVIEW */}
 
             {f.type==="text" && (
               <input disabled className="border px-2 py-1 rounded w-full"/>
@@ -161,8 +190,6 @@ export default function CreateDynamicForm({onCreated}){
                 Label block
               </p>
             )}
-
-            {/* CONTROLS */}
 
             <div className="flex gap-2 flex-wrap items-center">
 
@@ -225,7 +252,7 @@ export default function CreateDynamicForm({onCreated}){
 
       </div>
 
-      {/* GOOGLE FORM STYLE TOOLBAR */}
+      {/* TOOLBAR */}
 
       <div className="flex flex-col gap-2">
 

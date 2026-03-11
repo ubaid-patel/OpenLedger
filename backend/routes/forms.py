@@ -12,7 +12,16 @@ router = APIRouter(prefix="/api/forms", tags=["forms"])
 
 @router.post("")
 def create_form(payload: dict):
+
+    payload["title"] = payload.get("title", "")
+    payload["description"] = payload.get("description", "")
+    payload["purpose"] = payload.get("purpose", "")
+    payload["fields"] = payload.get("fields", [])
+
+    payload["createdAt"] = datetime.utcnow()
+
     result = forms_collection.insert_one(payload)
+
     return {"id": str(result.inserted_id)}
 
 
@@ -57,6 +66,8 @@ def get_form(id: str):
 @router.put("/{id}")
 def update_form(id: str, payload: dict):
 
+    payload["fields"] = payload.get("fields", [])
+
     result = forms_collection.update_one(
         {"_id": ObjectId(id)},
         {"$set": payload}
@@ -95,20 +106,30 @@ def submit_form(id: str, payload: dict):
     if not form:
         return {"error": "Form not found"}
 
+
     # ====================================================
     # OLD FORM BEHAVIOUR (STRICT BACKWARD COMPATIBILITY)
     # ====================================================
 
     if not form.get("fields"):
 
+        receipts = payload.get("receipts") or []
+
+        if isinstance(receipts, str):
+            receipts = [receipts]
+
         document = {
+
             "name": payload.get("name"),
-            "amount": float(payload.get("amount", 0)),
+            "amount": float(payload.get("amount", 0)) if payload.get("amount") else 0,
             "purpose": form.get("purpose"),
             "notes": payload.get("notes"),
             "mode": payload.get("mode", "UPI"),
-            "receipts": payload.get("receipts"),
+
+            "receipts": receipts,
+
             "collectedBy": payload.get("collectedBy"),
+
             "date": datetime.utcnow()
         }
 
@@ -118,7 +139,7 @@ def submit_form(id: str, payload: dict):
 
 
     # ====================================================
-    # NEW CUSTOM FORM
+    # NEW CUSTOM FORM SYSTEM
     # ====================================================
 
     fields = form.get("fields", [])
@@ -130,8 +151,8 @@ def submit_form(id: str, payload: dict):
         field_name = field.get("name")
         field_type = field.get("type")
 
-        # ignore label/text display elements
-        if field_type in ["label", "text"]:
+        # ignore label display blocks
+        if field_type == "label":
             continue
 
         value = payload.get(field_name)
@@ -142,22 +163,35 @@ def submit_form(id: str, payload: dict):
 
         answers[field_name] = value
 
+
     # ----------------------------------------------------
-    # Maintain compatibility with existing collections UI
+    # RECEIPTS FIX
+    # ----------------------------------------------------
+
+    receipts = payload.get("receipts") or []
+
+    if isinstance(receipts, str):
+        receipts = [receipts]
+
+
+    # ----------------------------------------------------
+    # COLLECTION DOCUMENT
     # ----------------------------------------------------
 
     document = {
 
-        # HARD CODED FIELDS (used by existing UI)
+        # existing system compatibility
         "name": payload.get("name"),
         "amount": float(payload.get("amount", 0)) if payload.get("amount") else 0,
         "purpose": form.get("purpose"),
         "notes": payload.get("notes"),
         "mode": payload.get("mode", "UPI"),
-        "receipts": payload.get("receipts"),
+
+        "receipts": receipts,
+
         "collectedBy": payload.get("collectedBy"),
 
-        # NEW SYSTEM
+        # new dynamic form system
         "formId": str(form["_id"]),
         "answers": answers,
 
