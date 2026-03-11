@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,7 +35,6 @@ if assets_dir.exists():
     app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
 
 
-# Root route
 @app.get("/")
 def serve_root():
     index_file = BUILD_DIR / "index.html"
@@ -44,21 +43,22 @@ def serve_root():
     return {"status": "API running"}
 
 
-# React router fallback
 @app.get("/{full_path:path}")
-def serve_react_app(full_path: str):
+async def serve_react_app(full_path: str, request: Request):
 
-    # Paths that should NOT be handled by React
-    excluded_prefixes = (
-        "api",
-        "docs",
-        "redoc",
-        "openapi.json",
-        "assets",
-        "favicon.ico",
+    # paths that should be handled by FastAPI, not React
+    excluded_paths = (
+        "/api",
+        "/docs",
+        "/redoc",
+        "/openapi.json",
+        "/assets",
+        "/favicon.ico",
     )
 
-    if full_path.startswith(excluded_prefixes):
+    request_path = request.url.path
+
+    if request_path.startswith(excluded_paths):
         return {"detail": "Not Found"}
 
     index_file = BUILD_DIR / "index.html"
