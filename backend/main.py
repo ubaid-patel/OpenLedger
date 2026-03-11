@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from pathlib import Path
 
 from routes import expenses, collections, upload, forms
 
@@ -23,19 +24,26 @@ app.include_router(collections.router, prefix="/api/collections")
 app.include_router(upload.router, prefix="/api/upload")
 
 # React build directory
-BUILD_DIR = "./build"
+BUILD_DIR = Path("public")
 
 # Serve static assets
-app.mount("/assets", StaticFiles(directory=f"{BUILD_DIR}/assets"), name="assets")
+assets_dir = BUILD_DIR / "assets"
+if assets_dir.exists():
+    app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
 
 
 # Root route
 @app.get("/")
 def serve_root():
-    return FileResponse(f"{BUILD_DIR}/index.html")
+    return FileResponse(BUILD_DIR / "index.html")
 
 
-# Catch-all route for React Router
+# Catch-all route for React Router (must be LAST)
 @app.get("/{full_path:path}")
 def serve_react_app(full_path: str):
-    return FileResponse(f"{BUILD_DIR}/index.html")
+    index_file = BUILD_DIR / "index.html"
+
+    if index_file.exists():
+        return FileResponse(index_file)
+
+    return {"error": "React build not found"}
