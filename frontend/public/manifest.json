@@ -1,6 +1,6 @@
 {
-  "name": "Finance Tracker",
-  "short_name": "Finance",
+  "name": "Open-Ledger",
+  "short_name": "Open-Ledger",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

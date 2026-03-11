@@ -1,5 +1,12 @@
 import { Link, useLocation } from "react-router-dom"
 import { useState } from "react"
+import {
+  LayoutDashboard,
+  Receipt,
+  HandCoins,
+  ShieldCheck,
+  FileText
+} from "lucide-react"
 
 export default function Layout({ children }) {
 
@@ -7,11 +14,41 @@ export default function Layout({ children }) {
   const [open, setOpen] = useState(false)
 
   const nav = [
-    { name: "Dashboard", path: "/", icon: "🏠" },
-    { name: "Expenses", path: "/expenses", icon: "💸" },
-    { name: "Collections", path: "/collections", icon: "📥" },
-    { name: "Admin", path: "/admin", icon: "🛠" },
-    { name: "Forms", path: "/forms", icon: "📝" }
+    {
+      name: "Dashboard",
+      path: "/",
+      icon: LayoutDashboard,
+      color: "text-indigo-600",
+      bg: "bg-indigo-50"
+    },
+    {
+      name: "Expenses",
+      path: "/expenses",
+      icon: Receipt,
+      color: "text-orange-600",
+      bg: "bg-orange-50"
+    },
+    {
+      name: "Collections",
+      path: "/collections",
+      icon: HandCoins,
+      color: "text-emerald-600",
+      bg: "bg-emerald-50"
+    },
+    {
+      name: "Admin",
+      path: "/admin",
+      icon: ShieldCheck,
+      color: "text-red-600",
+      bg: "bg-red-50"
+    },
+    {
+      name: "Forms",
+      path: "/forms",
+      icon: FileText,
+      color: "text-violet-600",
+      bg: "bg-violet-50"
+    }
   ]
 
   return (
@@ -28,21 +65,31 @@ export default function Layout({ children }) {
 
         <nav className="p-4 space-y-2">
 
-          {nav.map((n) => (
+          {nav.map((n) => {
 
-            <Link
-              key={n.path}
-              to={n.path}
-              className={`block px-4 py-2 rounded-lg transition
-              ${location.pathname === n.path
-                  ? "bg-blue-500 text-white"
-                  : "text-gray-700 hover:bg-gray-200"
-                }`}
-            >
-              {n.name}
-            </Link>
+            const Icon = n.icon
 
-          ))}
+            return (
+
+              <Link
+                key={n.path}
+                to={n.path}
+                className={`flex items-center gap-3 px-4 py-2 rounded-lg transition
+                ${location.pathname === n.path
+                    ? "bg-blue-500 text-white"
+                    : "text-gray-700 hover:bg-gray-200"
+                  }`}
+              >
+
+                <Icon size={18} />
+
+                {n.name}
+
+              </Link>
+
+            )
+
+          })}
 
         </nav>
 
@@ -79,22 +126,32 @@ export default function Layout({ children }) {
 
           <div className="md:hidden bg-white shadow-lg border-b">
 
-            {nav.map((n) => (
+            {nav.map((n) => {
 
-              <Link
-                key={n.path}
-                to={n.path}
-                onClick={() => setOpen(false)}
-                className={`block px-4 py-3 border-b transition
-                ${location.pathname === n.path
-                    ? "bg-blue-500 text-white"
-                    : "hover:bg-gray-100"
-                  }`}
-              >
-                {n.name}
-              </Link>
+              const Icon = n.icon
 
-            ))}
+              return (
+
+                <Link
+                  key={n.path}
+                  to={n.path}
+                  onClick={() => setOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-3 border-b transition
+                  ${location.pathname === n.path
+                      ? "bg-blue-500 text-white"
+                      : "hover:bg-gray-100"
+                    }`}
+                >
+
+                  <Icon size={18} />
+
+                  {n.name}
+
+                </Link>
+
+              )
+
+            })}
 
           </div>
 
@@ -110,7 +167,7 @@ export default function Layout({ children }) {
 
         {/* Footer */}
 
-        <footer className="flex justify-center my-10 md:my-12">
+        <footer className="flex justify-center my-10 md:my-12 mb-20">
 
           <a
             href="https://github.com/ubaid-patel"
@@ -138,45 +195,45 @@ export default function Layout({ children }) {
         </footer>
 
 
-        {/* Native Style Bottom Navigation */}
-
-        {/* Native Style Bottom Navigation */}
+        {/* Mobile Bottom Navigation */}
 
         <nav className="md:hidden fixed bottom-0 left-0 w-full z-50">
 
-          <div className="bg-white/90 backdrop-blur-xl border-t shadow-lg flex justify-between items-center px-1 pb-[env(safe-area-inset-bottom)]">
+          <div className="
+            bg-white/90 backdrop-blur-xl
+            border-t border-gray-200
+            flex justify-between items-center
+            px-2
+            pb-[env(safe-area-inset-bottom)]
+          ">
 
             {nav.map((n) => {
 
               const active = location.pathname === n.path
+              const Icon = n.icon
 
               return (
 
                 <Link
                   key={n.path}
                   to={n.path}
-                  className={`relative flex flex-col items-center justify-center flex-1 py-2 transition-all duration-200
-          ${active ? "text-blue-600" : "text-gray-500"}
-          `}
+                  className="relative flex flex-col items-center justify-center flex-1 py-2 transition-all duration-200"
                 >
 
-                  {/* Active indicator */}
+                  {active && (
+                    <span className={`absolute inset-x-2 top-1 bottom-1 rounded-xl ${n.bg} -z-10`} />
+                  )}
 
-                  <span
-                    className={`absolute top-0 h-[3px] w-6 rounded-full bg-blue-600 transition-all duration-300
-            ${active ? "opacity-100 scale-100" : "opacity-0 scale-50"}
-            `}
+                  <Icon
+                    size={20}
+                    strokeWidth={2}
+                    className={`${active ? n.color : "text-gray-500"} transition`}
                   />
 
-                  {/* Icon */}
-
-                  <span className={`text-xl transition-transform ${active ? "scale-110" : ""}`}>
-                    {n.icon}
-                  </span>
-
-                  {/* Small Label */}
-
-                  <span className="text-[10px] leading-none mt-1">
+                  <span
+                    className={`text-[11px] mt-1 font-medium tracking-tight ${active ? n.color : "text-gray-500"
+                      }`}
+                  >
                     {n.name}
                   </span>
 
@@ -189,6 +246,7 @@ export default function Layout({ children }) {
           </div>
 
         </nav>
+
       </div>
 
     </div>
