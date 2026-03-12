@@ -35,12 +35,13 @@ export default function Dashboard() {
   }
 
   /* ---------- NORMALIZE PURPOSE ---------- */
-
   function normalizePurpose(purpose) {
 
-    if (!purpose) return "Other"
+    if (!purpose) return "Iftaar"
 
     const p = purpose.toLowerCase()
+
+    /* Hafiz expenses */
 
     if (
       p.includes("hafiz") ||
@@ -49,20 +50,25 @@ export default function Dashboard() {
       p.includes("travel")
     ) return "Hafiz saab expenses"
 
-    if (
-      p.includes("iftar") ||
-      p.includes("iftaar") ||
-      p.includes("iftari")
-    ) return "Iftaar"
 
-    if (p.includes("hadiya")) return "Hadiya"
+    /* Hadiya */
+
+    if (p.includes("hadiya"))
+      return "Hadiya"
+
+
+    /* Donations */
 
     if (
       p.includes("donation") ||
       p.includes("chanda")
-    ) return "Donation"
+    )
+      return "Donation"
 
-    return purpose
+
+    /* Everything else → Iftaar */
+
+    return "Iftaar"
   }
 
   /* ---------- TOTALS ---------- */
@@ -130,18 +136,23 @@ export default function Dashboard() {
 
     }, {})
 
-  const expensesByPurpose =
-    expenses.reduce((acc, e) => {
+const expensesByPurpose =
+  expenses.reduce((acc, e) => {
 
-      const key = normalizePurpose(e.purpose)
+    const key = normalizePurpose(e.purpose)
 
-      if (!acc[key]) acc[key] = 0
+    if (!acc[key]) acc[key] = 0
 
-      acc[key] += Number(e.amount) || 0
+    acc[key] += Number(e.amount) || 0
 
-      return acc
+    return acc
 
-    }, {})
+  }, {})
+
+/* add hardcoded hadiya given to imam */
+
+expensesByPurpose["Hadiya given to Imam"] =
+  (expensesByPurpose["Hadiya given to Imam"] || 0) + hadiyaGivenToImam
 
   if (loading) {
 
