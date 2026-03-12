@@ -162,7 +162,7 @@ export default function Dashboard() {
 
   return (
 
-    <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
+    <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-6 animate-[fadeIn_.35s_ease]">
 
       {/* HEADER */}
 
@@ -174,7 +174,7 @@ export default function Dashboard() {
 
         <button
           onClick={() => navigate("/forms")}
-          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg shadow-sm"
+          className="bg-green-500 hover:bg-green-600 active:scale-95 transition text-white px-4 py-2 rounded-lg shadow-sm"
         >
           Forms
         </button>
@@ -184,7 +184,7 @@ export default function Dashboard() {
 
       {/* EXPENSE SUMMARY CARD */}
 
-      <div className="bg-white rounded-xl shadow-sm border p-5">
+      <div className="bg-white rounded-xl shadow-sm border p-5 transition hover:-translate-y-0.5 hover:shadow-md">
 
         <h2 className="font-semibold text-lg mb-4">
           Expense Overview
@@ -192,7 +192,7 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-3 gap-4 text-center">
 
-          <div>
+          <div className="transition hover:scale-[1.03]">
 
             <p className="text-xs text-gray-500">
               Total Expenses
@@ -204,7 +204,7 @@ export default function Dashboard() {
 
           </div>
 
-          <div>
+          <div className="transition hover:scale-[1.03]">
 
             <p className="text-xs text-gray-500">
               Avg / Day
@@ -216,7 +216,7 @@ export default function Dashboard() {
 
           </div>
 
-          <div>
+          <div className="transition hover:scale-[1.03]">
 
             <p className="text-xs text-gray-500">
               Cash Runway
@@ -285,7 +285,7 @@ function FinanceCard({ title, rows }) {
 
   return (
 
-    <div className="bg-white rounded-xl shadow-sm border p-5">
+    <div className="bg-white rounded-xl shadow-sm border p-5 transition hover:-translate-y-0.5 hover:shadow-md">
 
       <h3 className="font-semibold text-lg mb-4">
         {title}
@@ -297,7 +297,7 @@ function FinanceCard({ title, rows }) {
 
           <div
             key={i}
-            className="flex justify-between items-center"
+            className="flex justify-between items-center transition hover:bg-gray-50 p-1 rounded"
           >
 
             <span className="text-sm text-gray-500">
@@ -327,7 +327,7 @@ function TableCard({ title, data }) {
 
   return (
 
-    <div className="bg-white rounded-xl shadow-sm border p-5">
+    <div className="bg-white rounded-xl shadow-sm border p-5 transition hover:-translate-y-0.5 hover:shadow-md">
 
       <h3 className="font-semibold text-lg mb-4">
         {title}
@@ -348,7 +348,10 @@ function TableCard({ title, data }) {
 
           {Object.entries(data).map(([p, a]) => (
 
-            <tr key={p} className="border-t">
+            <tr
+              key={p}
+              className="border-t hover:bg-gray-50 transition"
+            >
 
               <td className="p-2">{p}</td>
 
