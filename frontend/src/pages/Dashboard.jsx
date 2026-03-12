@@ -2,23 +2,23 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import API from "../api/api"
 
-export default function Dashboard(){
+export default function Dashboard() {
 
   const navigate = useNavigate()
 
-  const [expenses,setExpenses] = useState([])
-  const [collections,setCollections] = useState([])
-  const [loading,setLoading] = useState(true)
+  const [expenses, setExpenses] = useState([])
+  const [collections, setCollections] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  useEffect(()=>{
+  useEffect(() => {
     load()
-  },[])
+  }, [])
 
-  const load = async()=>{
+  const load = async () => {
 
-    try{
+    try {
 
-      const [expRes,colRes] = await Promise.all([
+      const [expRes, colRes] = await Promise.all([
         API.get("/expenses/"),
         API.get("/collections/")
       ])
@@ -26,117 +26,133 @@ export default function Dashboard(){
       setExpenses(expRes.data || [])
       setCollections(colRes.data || [])
 
-    }catch(e){
-      console.error("Dashboard API error",e)
+    } catch (e) {
+      console.error("Dashboard API error", e)
     }
 
     setLoading(false)
 
   }
 
-  function normalizePurpose(purpose){
+  /* ---------- NORMALIZE PURPOSE ---------- */
 
-    if(!purpose) return "Other"
+  function normalizePurpose(purpose) {
+
+    if (!purpose) return "Other"
 
     const p = purpose.toLowerCase()
 
-    if(
+    if (
       p.includes("hafiz") ||
       p.includes("haafiz") ||
       p.includes("rapido") ||
       p.includes("travel")
-    ){
-      return "Hafiz saab expenses"
-    }
+    ) return "Hafiz saab expenses"
 
-    if(
+    if (
       p.includes("iftar") ||
       p.includes("iftaar") ||
       p.includes("iftari")
-    ){
-      return "Iftaar"
-    }
+    ) return "Iftaar"
+
+    if (p.includes("hadiya")) return "Hadiya"
+
+    if (
+      p.includes("donation") ||
+      p.includes("chanda")
+    ) return "Donation"
 
     return purpose
-
   }
 
+  /* ---------- TOTALS ---------- */
+
   const totalExpenses =
-    expenses.reduce((a,b)=>a+(Number(b.amount)||0),0)
+    expenses.reduce((a, b) => a + (Number(b.amount) || 0), 0)
 
   const totalCollections =
-    collections.reduce((a,b)=>a+(Number(b.amount)||0),0)
+    collections.reduce((a, b) => a + (Number(b.amount) || 0), 0)
 
-  const balance =
-    totalCollections-totalExpenses
+  /* ---------- HADIYA ---------- */
 
-  const contributors =
-    new Set(
-      collections.map(c=>c.name).filter(Boolean)
-    ).size
+  const hadiyaCollections =
+    collections.filter(c =>
+      (c.purpose || "").toLowerCase().includes("hadiya")
+    )
 
-  const expenseEntries =
-    expenses.length
+  const totalHadiya =
+    hadiyaCollections.reduce((a, b) => a + (Number(b.amount) || 0), 0)
+
+  const hadiyaGivenToImam = 12000
+
+  const hadiyaBalance =
+    totalHadiya - hadiyaGivenToImam
+
+  /* ---------- DONATIONS ---------- */
+
+  const donationCollections =
+    collections.filter(c =>
+      !(c.purpose || "").toLowerCase().includes("hadiya")
+    )
+
+  const totalDonations =
+    donationCollections.reduce((a, b) => a + (Number(b.amount) || 0), 0)
+
+  const donationBalance =
+    totalDonations - totalExpenses
+
+  /* ---------- EXPENSE STATS ---------- */
 
   const uniqueDays = [...new Set(
-
     expenses
-      .filter(e=>e.date)
-      .map(e=> new Date(e.date).toDateString())
-
+      .filter(e => e.date)
+      .map(e => new Date(e.date).toDateString())
   )]
 
   const avgExpense =
-    uniqueDays.length ? totalExpenses/uniqueDays.length : 0
+    uniqueDays.length ? totalExpenses / uniqueDays.length : 0
 
   const cashRunway =
-    avgExpense ? balance/avgExpense : 0
+    avgExpense ? donationBalance / avgExpense : 0
+
+  /* ---------- PURPOSE GROUPING ---------- */
 
   const collectionsByPurpose =
-    collections.reduce((acc,c)=>{
+    collections.reduce((acc, c) => {
 
       const key = normalizePurpose(c.purpose)
 
-      if(!acc[key]) acc[key]=0
+      if (!acc[key]) acc[key] = 0
 
-      acc[key]+=Number(c.amount)||0
+      acc[key] += Number(c.amount) || 0
 
       return acc
 
-    },{})
+    }, {})
 
   const expensesByPurpose =
-    expenses.reduce((acc,e)=>{
+    expenses.reduce((acc, e) => {
 
       const key = normalizePurpose(e.purpose)
 
-      if(!acc[key]) acc[key]=0
+      if (!acc[key]) acc[key] = 0
 
-      acc[key]+=Number(e.amount)||0
+      acc[key] += Number(e.amount) || 0
 
       return acc
 
-    },{})
+    }, {})
 
-  if(loading){
+  if (loading) {
 
-    return(
+    return (
 
       <div className="p-6 space-y-4 animate-pulse">
 
-        <div className="h-8 w-40 bg-gray-200 rounded"></div>
-
-        <div className="grid grid-cols-2 gap-3">
-
-          {[...Array(6)].map((_,i)=>(
-            <div key={i} className="h-20 bg-gray-200 rounded-lg"></div>
-          ))}
-
-        </div>
-
-        <div className="h-40 bg-gray-200 rounded"></div>
-
-        <div className="h-40 bg-gray-200 rounded"></div>
+        <div className="h-32 bg-gray-200 rounded-xl"></div>
+        <div className="h-32 bg-gray-200 rounded-xl"></div>
+        <div className="h-40 bg-gray-200 rounded-xl"></div>
+        <div className="h-40 bg-gray-200 rounded-xl"></div>
 
       </div>
 
@@ -144,118 +160,157 @@ export default function Dashboard(){
 
   }
 
-  return(
+  return (
 
-    <div className="max-w-6xl mx-auto animate-[fadein_.4s_ease]">
+    <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
 
-      {/* FORMS BUTTON */}
+      {/* HEADER */}
 
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-between items-center">
+
+        <h1 className="text-xl md:text-2xl font-bold">
+          Finance Dashboard
+        </h1>
 
         <button
-          onClick={()=>navigate("/forms")}
-          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg shadow active:scale-95 transition"
+          onClick={() => navigate("/forms")}
+          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg shadow-sm"
         >
           Forms
         </button>
 
       </div>
 
-      {/* SUMMARY CARDS */}
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
+      {/* EXPENSE SUMMARY CARD */}
 
-        <Card title="Total Donations" value={totalCollections}/>
-        <Card title="Total Expenses" value={totalExpenses}/>
-        <Card title="Balance" value={balance}/>
-        <Card title="Contributors" value={contributors} currency={false}/>
+      <div className="bg-white rounded-xl shadow-sm border p-5">
 
-        <Card title="Expense Entries" value={expenseEntries} currency={false}/>
-        <Card title="Avg Expense / Day" value={avgExpense}/>
-        <Card title="Cash Runway (Days)" value={cashRunway} currency={false}/>
-        <Card title="Expense Days" value={uniqueDays.length} currency={false}/>
+        <h2 className="font-semibold text-lg mb-4">
+          Expense Overview
+        </h2>
+
+        <div className="grid grid-cols-3 gap-4 text-center">
+
+          <div>
+
+            <p className="text-xs text-gray-500">
+              Total Expenses
+            </p>
+
+            <p className="text-xl font-bold text-red-600">
+              ₹ {Math.round(totalExpenses).toLocaleString()}
+            </p>
+
+          </div>
+
+          <div>
+
+            <p className="text-xs text-gray-500">
+              Avg / Day
+            </p>
+
+            <p className="text-xl font-bold text-orange-500">
+              ₹ {Math.round(avgExpense).toLocaleString()}
+            </p>
+
+          </div>
+
+          <div>
+
+            <p className="text-xs text-gray-500">
+              Cash Runway
+            </p>
+
+            <p className="text-xl font-bold text-green-600">
+              {Math.round(cashRunway)} days
+            </p>
+
+          </div>
+
+        </div>
 
       </div>
+
+
+      {/* DONATION + HADIYA */}
+
+      <div className="grid md:grid-cols-2 gap-4">
+
+        <FinanceCard
+          title="Donations"
+          rows={[
+            { label: "Received", value: totalDonations, color: "text-blue-600" },
+            { label: "Balance", value: donationBalance, color: "text-green-600" }
+          ]}
+        />
+
+        <FinanceCard
+          title="Hadiya"
+          rows={[
+            { label: "Received", value: totalHadiya, color: "text-blue-600" },
+            { label: "Given to Imam", value: hadiyaGivenToImam, color: "text-red-500" },
+            { label: "Balance", value: hadiyaBalance, color: "text-green-600" }
+          ]}
+        />
+
+      </div>
+
 
       {/* COLLECTION PURPOSES */}
 
-      <div className="bg-white shadow-md rounded-xl p-4 md:p-6 mb-6 transition hover:shadow-lg">
+      <TableCard
+        title="Funds Received by Purpose"
+        data={collectionsByPurpose}
+      />
 
-        <h2 className="font-semibold text-lg mb-4">
-          Funds Received by Purpose
-        </h2>
-
-        <table className="w-full text-sm md:text-base">
-
-          <thead className="bg-gray-100">
-
-            <tr>
-              <th className="p-2 text-left">Purpose</th>
-              <th className="p-2 text-right">Amount</th>
-            </tr>
-
-          </thead>
-
-          <tbody>
-
-            {Object.entries(collectionsByPurpose).map(([p,a])=>(
-
-              <tr key={p} className="border-t hover:bg-gray-50 transition">
-
-                <td className="p-2">{p}</td>
-
-                <td className="p-2 text-right font-semibold">
-                  ₹ {a.toLocaleString()}
-                </td>
-
-              </tr>
-
-            ))}
-
-          </tbody>
-
-        </table>
-
-      </div>
 
       {/* EXPENSE PURPOSES */}
 
-      <div className="bg-white shadow-md rounded-xl p-4 md:p-6 transition hover:shadow-lg">
+      <TableCard
+        title="Expenses by Purpose"
+        data={expensesByPurpose}
+      />
 
-        <h2 className="font-semibold text-lg mb-4">
-          Expenses by Purpose
-        </h2>
+    </div>
 
-        <table className="w-full text-sm md:text-base">
+  )
 
-          <thead className="bg-gray-100">
+}
 
-            <tr>
-              <th className="p-2 text-left">Purpose</th>
-              <th className="p-2 text-right">Amount</th>
-            </tr>
 
-          </thead>
+/* ---------- FINANCE CARD ---------- */
 
-          <tbody>
+function FinanceCard({ title, rows }) {
 
-            {Object.entries(expensesByPurpose).map(([p,a])=>(
+  return (
 
-              <tr key={p} className="border-t hover:bg-gray-50 transition">
+    <div className="bg-white rounded-xl shadow-sm border p-5">
 
-                <td className="p-2">{p}</td>
+      <h3 className="font-semibold text-lg mb-4">
+        {title}
+      </h3>
 
-                <td className="p-2 text-right font-semibold">
-                  ₹ {a.toLocaleString()}
-                </td>
+      <div className="space-y-3">
 
-              </tr>
+        {rows.map((r, i) => (
 
-            ))}
+          <div
+            key={i}
+            className="flex justify-between items-center"
+          >
 
-          </tbody>
+            <span className="text-sm text-gray-500">
+              {r.label}
+            </span>
 
-        </table>
+            <span className={`font-semibold ${r.color}`}>
+              ₹ {Math.round(r.value).toLocaleString()}
+            </span>
+
+          </div>
+
+        ))}
 
       </div>
 
@@ -265,24 +320,49 @@ export default function Dashboard(){
 
 }
 
-/* ---------- CARD COMPONENT ---------- */
 
-function Card({title,value,currency=true}){
+/* ---------- TABLE CARD ---------- */
 
-  return(
+function TableCard({ title, data }) {
 
-    <div className="bg-white shadow-md rounded-xl p-4 transition transform hover:-translate-y-1 hover:shadow-lg active:scale-95">
+  return (
 
-      <p className="text-xs md:text-sm text-gray-500">
+    <div className="bg-white rounded-xl shadow-sm border p-5">
+
+      <h3 className="font-semibold text-lg mb-4">
         {title}
-      </p>
+      </h3>
 
-      <p className="text-lg md:text-xl font-bold">
+      <table className="w-full text-sm">
 
-        {currency ? "₹ " : ""}
-        {Math.round(value).toLocaleString()}
+        <thead className="bg-gray-50">
 
-      </p>
+          <tr>
+            <th className="text-left p-2">Purpose</th>
+            <th className="text-right p-2">Amount</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          {Object.entries(data).map(([p, a]) => (
+
+            <tr key={p} className="border-t">
+
+              <td className="p-2">{p}</td>
+
+              <td className="p-2 text-right font-semibold">
+                ₹ {a.toLocaleString()}
+              </td>
+
+            </tr>
+
+          ))}
+
+        </tbody>
+
+      </table>
 
     </div>
 
