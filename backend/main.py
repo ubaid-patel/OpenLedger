@@ -6,7 +6,7 @@ from pathlib import Path
 
 from routes import expenses, collections, upload, forms
 
-app = FastAPI()
+app = FastAPI(docs_url=None, redoc_url=None)
 
 # CORS
 app.add_middleware(

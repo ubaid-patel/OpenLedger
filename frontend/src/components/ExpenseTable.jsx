@@ -78,7 +78,6 @@ export default function ExpenseTable(){
 
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
 
-
         <input
           placeholder="Search purpose or name..."
           className="border rounded-lg px-3 py-2 text-sm w-full md:w-64"
@@ -126,6 +125,13 @@ export default function ExpenseTable(){
             <div className="text-sm text-gray-500 mt-1">
               {e.paidBy || "-"} • {e.mode || "-"}
             </div>
+
+            {/* NOTES FIELD ADDED */}
+            {e.notes && (
+              <div className="text-sm text-gray-600 mt-2">
+                {e.notes}
+              </div>
+            )}
 
             <div className="flex justify-between items-center mt-3">
 

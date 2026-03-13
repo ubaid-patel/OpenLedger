@@ -35,42 +35,55 @@ export default function Dashboard() {
   }
 
   /* ---------- NORMALIZE PURPOSE ---------- */
-  function normalizePurpose(purpose) {
+function normalizePurpose(purpose) {
 
-    if (!purpose) return "Iftaar"
+  if (!purpose) return "Iftaar"
 
-    const p = purpose.toLowerCase()
+  const p = purpose.toLowerCase()
 
-    /* Hafiz expenses */
+  /* IFTAAR PARTY FIRST */
 
-    if (
-      p.includes("hafiz") ||
-      p.includes("haafiz") ||
-      p.includes("rapido") ||
-      p.includes("travel")
-    ) return "Hafiz saab expenses"
-
-
-    /* Hadiya */
-
-    if (p.includes("hadiya"))
-      return "Hadiya"
+  if (
+    p.includes("iftaar party") ||
+    p.includes("iftar party")
+  )
+    return "Iftaar party"
 
 
-    /* Donations */
+  /* HAFIZ */
 
-    if (
-      p.includes("donation") ||
-      p.includes("chanda")
-    )
-      return "Donation"
+  if (
+    p.includes("hafiz") ||
+    p.includes("haafiz") ||
+    p.includes("rapido") ||
+    p.includes("travel")
+  )
+    return "Hafiz saab expenses"
 
 
-    /* Everything else → Iftaar */
+  /* HADIYA */
 
+  if (p.includes("hadiya"))
+    return "Hadiya"
+
+
+  /* DONATION */
+
+  if (
+    p.includes("donation") ||
+    p.includes("chanda")
+  )
+    return "Donation"
+
+
+  /* NORMAL IFTAAR */
+
+  if (p.includes("iftaar") || p.includes("iftar"))
     return "Iftaar"
-  }
 
+
+  return "Iftaar"
+}
   /* ---------- TOTALS ---------- */
 
   const totalExpenses =
